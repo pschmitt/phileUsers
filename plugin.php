@@ -58,7 +58,6 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         } else {
             $this->hash_type = 'sha512';
         }
-        error_log($this->hash_type, 0);
         $this->user = '';
         $this->check_login();
     }
