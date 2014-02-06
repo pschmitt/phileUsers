@@ -1,6 +1,6 @@
-# Pico Users
+# Phile Users
 
-A hierarchical users and rights system plugin for [Pico CMS](http://pico.dev7studios.com).
+A hierarchical users and rights system plugin for [Phile](http://philecms.github.io/Phile).
 
 Login and logout system, unlimited users and hierarchical user groups, simple rights management.
 
@@ -13,16 +13,27 @@ Login and logout system, unlimited users and hierarchical user groups, simple ri
 
 ### Installation
 
-Copy `_pico_users.php` to the `plugins/` directory of your Pico Project.
+Clone this repo to `plugins/`:
+
+```bash
+git clone https://github.com/pschmitt/phileUsers.git
+```
 
 ### Users management
 
-Create a new setting "*users*" in your Pico `config.php` file. This setting is a list of all the users and their passwords, stored as sha1 strings :
+Create a new setting "*users*" in your `config.php` file. This setting is a list of all the users and their passwords, stored as sha1 strings :
 
 	username => 2cc13a9e718d3d3051ac1f0ba024a2ff77485f4b
 	otheruser => 12dea96fec20593566ab75692c9949596833adc9
 
-To convert a password, you may use an online tool like [sha1.cz](http://sha1.cz) or [sha1.fr](http://sha1.fr). Alternatively you can issue this shell command: `php -r "echo hash('sha1', 'MYPASSWORD');"`.
+To convert a password, you may use an online tool like [convertstring.com](http://www.convertstring.com/Hash/SHA512). Alternatively you can use the included `hash.php`:
+
+```bash
+# Generate a hash for all available hash algorithms
+php -f hash.php "MY_PASSWORD"
+# Generate a hash using a specific algorithm
+php -f hash.php sha512 "MY_PASSWORD"
+``` 
 
 You can create groups of users by using sub-arrays. Users are defined by their *user path* You will be able to give rights to specific groups.
 
@@ -84,12 +95,11 @@ $settings['rights'] = array
 
 ### Using another hash algorithm
 
-By default sha1 will be used, but you can change this in your `config.php`:
+By default sha512 will be used, but you can change this in your `config.php`:
 
 ```php
 $config['hash_type'] = 'sha256';
 ```
-
 
 ### Login and logout
 
