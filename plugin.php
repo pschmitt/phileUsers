@@ -41,15 +41,24 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      * Store settings and define the current user.
      */
     private function config_loaded(&$data) {
-        $this->base_url = $this->config['base_url'];
-        $this->users = @$this->config['users'];
-        $this->rights = @$this->config['rights'];
-        if (in_array($this->config['hash_type'], hash_algos())) {
+        // merge the arrays to bind the settings to the view
+        // Note: this->config takes precedence
+        $this->config = array_merge($this->settings, $this->config);
+        if (isset($this->config['base_url'])) {
+            $this->base_url = $this->config['base_url'];
+        }
+        if (isset($this->config['users'])) {
+            $this->users = @$this->config['users'];
+        }
+        if (isset($this->config['rights'])) {
+            $this->rights = $this->config['rights'];
+        }
+        if (isset($this->config['hash_type']) && in_array($this->config['hash_type'], hash_algos())) {
             $this->hash_type = $this->config['hash_type'];
         } else {
             $this->hash_type = 'sha512';
         }
-
+        error_log($this->hash_type, 0);
         $this->user = '';
         $this->check_login();
     }
