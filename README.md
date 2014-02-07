@@ -56,7 +56,7 @@ In the previous example, bill is defined by `foo/bar/bill` and have the rights o
 Here is an example of a typical hierarchy :
 
 ```php
-$settings['users'] = array
+$config['users'] = array
 (
 	'family' => array(
 		'mum' => '2cc13a9e718d3d3051ac1f0ba024a2ff77485f4b',
@@ -84,7 +84,7 @@ This setting is a flat list of rules associating a path to a user or a group of 
 Here is an example of such a setting :
 
 ```php
-$settings['rights'] = array
+$config['rights'] = array
 (
 	'family-things' => 'family',
 	'secret/infos' => 'editors',
