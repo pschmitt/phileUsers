@@ -118,6 +118,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         $twig_vars['user'] = $this->user;
         \Phile\Registry::set('templateVars', $twig_vars);
         //error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
+        error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
 
