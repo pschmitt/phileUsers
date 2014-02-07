@@ -62,7 +62,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
 
         $this->user = '';
         $this->check_login();
-        error_log("Config loaded: user " . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
+        //error_log("Config loaded: user " . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
     /**
@@ -70,14 +70,20 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      * display page "403" and send 403 headers.
      */
     private function request_uri(&$uri) {
-        $page_url = rtrim($uri, '/');
-        error_log("PAGE URL: " . $page_url, 0);
-        if (!$this->is_authorized($this->base_url . $page_url)) {
-            error_log("Request: " . $uri . " user: " . $this->user . " FORBIDDEN ", 0);
-            $uri = '403';
+        // If requesting 403 send an actual 403 response
+        if ($uri == '/403') {
             header('HTTP/1.1 403 Forbidden');
+            return;
+        }
+        $page_url = rtrim($uri, '/');
+        //error_log("PAGE URL: " . $page_url, 0);
+        if (!$this->is_authorized($this->base_url . $page_url)) {
+            //error_log("Request: " . $uri . " user: " . $this->user . " FORBIDDEN ", 0);
+            // Redirect to 403 page (content/403)
+            $uri = '/403';
+            header('location:' . $this->base_url . $uri);
         } else {
-            error_log("Request: " . $uri . " user: " . $this->user . " Acces Granted!", 0);
+            //error_log("Request: " . $uri . " user: " . $this->user . " Acces Granted!", 0);
         }
     }
 
@@ -111,8 +117,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         $twig_vars['login_form'] = $this->html_form();
         $twig_vars['user'] = $this->user;
         \Phile\Registry::set('templateVars', $twig_vars);
-        print_r(\Phile\Registry::get('templateVars'));
-        error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
+        //error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
 
@@ -235,13 +240,13 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
     private function is_authorized($url) {
         if (!$this->rights) return true;
         foreach ($this->rights as $auth_path => $auth_user) {
-            error_log('Checking ' . $auth_path . " user " . $auth_user, 0);
-            error_log('ParentOf ' . $this->base_url.'/'.$auth_path . ' -- ' . $url, 0);
+            //error_log('Checking ' . $auth_path . " user " . $auth_user, 0);
+            //error_log('ParentOf ' . $this->base_url.'/'.$auth_path . ' -- ' . $url, 0);
             // url is concerned by this rule and user is not (unauthorized)
             if ($this->is_parent_path($this->base_url.'/'.$auth_path, $url)) {
-                error_log('OK', 0);
+                //error_log('OK', 0);
                 if (!$this->is_parent_path($auth_user, $this->user)) {
-                    error_log('NOT ParentOf ' . $auth_user . " user " . $this->user, 0);
+                    //error_log('NOT ParentOf ' . $auth_user . " user " . $this->user, 0);
                     return false;
                 }
             }
