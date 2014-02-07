@@ -16,14 +16,12 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
     private $hash_type;
 
     private $config;
-    private $twig_vars;
 
     public function __construct() {
         \Phile\Event::registerEvent('config_loaded', $this);
-        \Phile\Event::registerEvent('after_parse_content', $this);
+        \Phile\Event::registerEvent('before_render_template', $this);
         \Phile\Event::registerEvent('request_uri', $this);
         $this->config = \Phile\Registry::get('Phile_Settings');
-        $this->twig_vars = \Phile\Registry::get('templateVars');
     }
 
     public function on($eventKey, $data = null) {
@@ -31,7 +29,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
             $this->config_loaded($data);
         } elseif ($eventKey == 'request_uri') {
             $this->request_uri($data['uri']);
-        } elseif ($eventKey == 'after_parse_content') {
+        } elseif ($eventKey == 'before_render_template') {
             $this->export_twig_vars();
         }
         // TODO call getPages() somewhere
@@ -44,22 +42,27 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         // merge the arrays to bind the settings to the view
         // Note: this->config takes precedence
         $this->config = array_merge($this->settings, $this->config);
+
         if (isset($this->config['base_url'])) {
             $this->base_url = $this->config['base_url'];
         }
         if (isset($this->config['users'])) {
-            $this->users = @$this->config['users'];
+            $this->users = $this->config['users'];
         }
         if (isset($this->config['rights'])) {
             $this->rights = $this->config['rights'];
         }
-        if (isset($this->config['hash_type']) && in_array($this->config['hash_type'], hash_algos())) {
+        if (isset($this->config['hash_type'])
+            && in_array($this->config['hash_type'], hash_algos())) {
             $this->hash_type = $this->config['hash_type'];
         } else {
             $this->hash_type = 'sha512';
         }
+
+
         $this->user = '';
         $this->check_login();
+        error_log("Config loaded: user " . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
     /**
@@ -68,9 +71,13 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      */
     private function request_uri(&$uri) {
         $page_url = rtrim($uri, '/');
-        if (!$this->is_authorized($this->base_url . '/' . $page_url)) {
+        error_log("PAGE URL: " . $page_url, 0);
+        if (!$this->is_authorized($this->base_url . $page_url)) {
+            error_log("Request: " . $uri . " user: " . $this->user . " FORBIDDEN ", 0);
             $uri = '403';
             header('HTTP/1.1 403 Forbidden');
+        } else {
+            error_log("Request: " . $uri . " user: " . $this->user . " Acces Granted!", 0);
         }
     }
 
@@ -96,9 +103,16 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      * Register a basic login form and user path in Twig variables.
      */
     private function export_twig_vars() {
-        $this->twig_vars['login_form'] = $this->html_form();
-        $this->twig_vars['user'] = $this->user;
-        \Phile\Registry::set('templateVars', $this->twig_vars);
+        if (\Phile\Registry::isRegistered('templateVars')) {
+            $twig_vars = \Phile\Registry::get('templateVars');
+        } else {
+            $twig_vars = array();
+        }
+        $twig_vars['login_form'] = $this->html_form();
+        $twig_vars['user'] = $this->user;
+        \Phile\Registry::set('templateVars', $twig_vars);
+        print_r(\Phile\Registry::get('templateVars'));
+        error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
 
@@ -220,11 +234,16 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      */
     private function is_authorized($url) {
         if (!$this->rights) return true;
-        foreach ($this->rights as $auth_path => $auth_user ) {
+        foreach ($this->rights as $auth_path => $auth_user) {
+            error_log('Checking ' . $auth_path . " user " . $auth_user, 0);
+            error_log('ParentOf ' . $this->base_url.'/'.$auth_path . ' -- ' . $url, 0);
             // url is concerned by this rule and user is not (unauthorized)
-            if ($this->is_parent_path($this->base_url.'/'.$auth_path, $url)
-                    && !$this->is_parent_path($auth_user, $this->user) ) {
-                return false;
+            if ($this->is_parent_path($this->base_url.'/'.$auth_path, $url)) {
+                error_log('OK', 0);
+                if (!$this->is_parent_path($auth_user, $this->user)) {
+                    error_log('NOT ParentOf ' . $auth_user . " user " . $this->user, 0);
+                    return false;
+                }
             }
         }
         return true;
