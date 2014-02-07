@@ -2,6 +2,8 @@
 
 A hierarchical users and rights system plugin for [Phile](http://philecms.github.io/Phile).
 
+This is essentially a port of [pico-users](https://github.com/nliautaud/pico-users) by [nliautaud](https://github.com/nliautaud).
+
 Login and logout system, unlimited users and hierarchical user groups, simple rights management.
 
 * [Installation](#installation)
@@ -16,7 +18,18 @@ Login and logout system, unlimited users and hierarchical user groups, simple ri
 Clone this repo to `plugins/`:
 
 ```bash
-git clone https://github.com/pschmitt/phileUsers.git
+git clone https://github.com/pschmitt/phileUsers.git /srv/http/plugins/phileUsers
+# You may consider using a submodule for this
+git submodule add http://github.com/pschmitt/phileUsers /srv/http/plugins/phileUsers
+```
+
+Activate it in `config.php`:
+
+```php
+$config['plugins'] = array(
+    // [...]
+    'phileUsers' => array('active' => true),
+);
 ```
 
 ### Users management
@@ -33,7 +46,7 @@ To convert a password, you may use an online tool like [convertstring.com](http:
 php -f hash.php "MY_PASSWORD"
 # Generate a hash using a specific algorithm
 php -f hash.php sha512 "MY_PASSWORD"
-``` 
+```
 
 You can create groups of users by using sub-arrays. Users are defined by their *user path* You will be able to give rights to specific groups.
 
