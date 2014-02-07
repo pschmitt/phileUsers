@@ -59,10 +59,8 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
             $this->hash_type = 'sha512';
         }
 
-
         $this->user = '';
         $this->check_login();
-        //error_log("Config loaded: user " . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
     /**
@@ -76,14 +74,10 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
             return;
         }
         $page_url = rtrim($uri, '/');
-        //error_log("PAGE URL: " . $page_url, 0);
         if (!$this->is_authorized($this->base_url . $page_url)) {
-            //error_log("Request: " . $uri . " user: " . $this->user . " FORBIDDEN ", 0);
             // Redirect to 403 page (content/403)
             $uri = '/403';
             header('location:' . $this->base_url . $uri);
-        } else {
-            //error_log("Request: " . $uri . " user: " . $this->user . " Acces Granted!", 0);
         }
     }
 
@@ -117,8 +111,6 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         $twig_vars['login_form'] = $this->html_form();
         $twig_vars['user'] = $this->user;
         \Phile\Registry::set('templateVars', $twig_vars);
-        //error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
-        error_log('Before render user' . $this->user . ($this->check_login() ? " logged in" : "LOGGED_OUT") .'(' . $this->hash_type . ')', 0);
     }
 
 
@@ -241,13 +233,9 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
     private function is_authorized($url) {
         if (!$this->rights) return true;
         foreach ($this->rights as $auth_path => $auth_user) {
-            //error_log('Checking ' . $auth_path . " user " . $auth_user, 0);
-            //error_log('ParentOf ' . $this->base_url.'/'.$auth_path . ' -- ' . $url, 0);
             // url is concerned by this rule and user is not (unauthorized)
             if ($this->is_parent_path($this->base_url.'/'.$auth_path, $url)) {
-                //error_log('OK', 0);
                 if (!$this->is_parent_path($auth_user, $this->user)) {
-                    //error_log('NOT ParentOf ' . $auth_user . " user " . $this->user, 0);
                     return false;
                 }
             }
@@ -265,7 +253,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      */
     private static function is_parent_path($parent, $child) {
         if (!$parent || !$child) return false;
-        if (    $parent == $child) return true;
+        if ($parent == $child) return true;
 
         if (strpos($child, $parent) === 0) {
             if (substr($parent,-1) == '/') return true;
