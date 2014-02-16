@@ -124,25 +124,28 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
             session_start();
         }
         $fp = $this->fingerprint();
-        $post = $_POST; // to sanitize ?
+
+        // to sanitize?
+        $username = isset($_POST['username']) ? $_POST['username'] : null;
+        $password = isset($_POST['password']) ? $_POST['password'] : null;
 
         // logout action
-        if (isset($post['logout'])) {
+        if (isset($_POST['logout'])) {
             unset($_SESSION[$fp]);
             return;
         }
 
         // login action
-        if (isset($post['login'])
-                && isset($post['password'])) {
-            return $this->login($post['login'], $post['password'], $fp);
+        if (isset($username)
+                && isset($password)) {
+            return $this->login($username, $password, $fp);
         }
 
         // session login (already logged)
 
         if (!isset($_SESSION[$fp])) return;
 
-        $name = $_SESSION[$fp]['name'];
+        $name = $_SESSION[$fp]['username'];
         $pass = $_SESSION[$fp]['password'];
 
         $logged = $this->login($name, $pass, $fp);
@@ -176,7 +179,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
         if (!$users) return false;
         // register
         $this->user = $users[0];
-        $_SESSION[$fp]['name'] = $name;
+        $_SESSION[$fp]['username'] = $name;
         $_SESSION[$fp]['password'] = $pass;
         return true;
     }
@@ -186,15 +189,15 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      */
     private function html_form() {
         if (!$this->user) return '
-            <form method="post" action="">
-                <input type="text" name="login" />
-                <input type="password" name="password" />
-                <input type="submit" value="login" />
-                </form>';
+            <form method="post" action="" class="login_form">
+                <input type="text" name="username" placeholder="Username" autofocus required/>
+                <input type="password" name="password" placeholder="Password" required />
+                <input type="submit" value="Sign in" />
+            </form>';
 
         return basename($this->user) . ' (' . dirname($this->user) . ')
-            <form method="post" action="" >
-            <input type="submit" value="logout" />
+            <form method="post" action="" class="logout_form">
+                <input type="submit" value="logout" />
             </form>';
     }
 
@@ -205,7 +208,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
      * @param  string $pass  the user password hash (hash)
      * @return array        the list of results in pairs "path/group/username" => "hash"
      */
-    private function search_users( $name, $pass = null, $users = null , $path = '' ) {
+    private function search_users($name, $pass = null, $users = null, $path = '') {
         if (!$users) $users = $this->users;
         if ($path) $path .= '/';
         $results = array();
@@ -222,6 +225,7 @@ class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObs
                 $results[] = $path.$name;
             }
         }
+
         return $results;
     }
 
