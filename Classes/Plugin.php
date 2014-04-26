@@ -1,13 +1,18 @@
 <?php
+
+namespace Phile\Plugin\Pschmitt\Users;
+
 /**
  * A hierarchical users and rights system plugin for Pico.
  *
  * @author  Philipp Schmitt
  * @link    http://lxl.io
- * @link    http://philecms.github.io/Phile
+ * @link    https://github.com/pschmitt/phileUsers
  * @license http://opensource.org/licenses/MIT
+ * @package Phile\Plugin\Pschmitt\Users
  */
-class PhileUsers extends \Phile\Plugin\AbstractPlugin implements \Phile\EventObserverInterface {
+
+class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\EventObserverInterface {
 
     private $user;
     private $users;

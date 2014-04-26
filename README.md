@@ -15,12 +15,13 @@ Login and logout system, unlimited users and hierarchical user groups, simple ri
 
 ### Installation
 
-Clone this repo to `plugins/`:
+Clone this repo to `plugins/pschmitt/users`:
 
 ```bash
-git clone https://github.com/pschmitt/phileUsers.git /srv/http/plugins/phileUsers
+mkdir -p ~http/plugins/pschmitt
+git clone https://github.com/pschmitt/phileUsers.git /srv/http/plugins/pschmitt/users
 # You may consider using a submodule for this
-git submodule add http://github.com/pschmitt/phileUsers /srv/http/plugins/phileUsers
+git submodule add http://github.com/pschmitt/phileUsers.git /srv/http/plugins/pschmitt/users
 ```
 
 Activate it in `config.php`:
@@ -28,7 +29,7 @@ Activate it in `config.php`:
 ```php
 $config['plugins'] = array(
     // [...]
-    'phileUsers' => array('active' => true),
+    'pschmitt\\users' => array('active' => true),
 );
 ```
 
