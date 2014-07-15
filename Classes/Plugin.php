@@ -202,7 +202,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 
         return basename($this->user) . ' (' . dirname($this->user) . ')
             <form method="post" action="" class="logout_form">
-                <input type="submit" value="logout" />
+                <input type="submit" name="logout" value="logout" />
             </form>';
     }
 
