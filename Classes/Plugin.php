@@ -114,7 +114,8 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
             $twig_vars = array();
         }
         $twig_vars['login_form'] = $this->html_form();
-        $twig_vars['user'] = $this->user;
+        $twig_vars['user'] = basename($this->user);
+        $twig_vars['group'] = dirname($this->user);
         \Phile\Registry::set('templateVars', $twig_vars);
     }
 
@@ -202,7 +203,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 
         return basename($this->user) . ' (' . dirname($this->user) . ')
             <form method="post" action="" class="logout_form">
-                <input type="submit" value="logout" />
+                <input type="submit" name="logout" value="logout" />
             </form>';
     }
 
